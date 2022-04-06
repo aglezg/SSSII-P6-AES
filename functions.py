@@ -34,6 +34,18 @@ SBOX = [['63', '7c', '77', '7b', 'f2', '6b', '6f', 'c5', '30', '01', '67', '2b',
          ['e1', 'f8', '98', '11', '69', 'd9', '8e', '94', '9b', '1e', '87', 'e9', 'ce', '55', '28', 'df'],
          ['8c', 'a1', '89', '0d', 'bf', 'e6', '42', '68', '41', '99', '2d', '0f', 'b0', '54', 'bb', '16']]
 
+# Vector RCON
+RCON = [['01', '00', '00', '00'],
+        ['02', '00', '00', '00'],
+        ['04', '00', '00', '00'],
+        ['08', '00', '00', '00'],
+        ['10', '00', '00', '00'],
+        ['20', '00', '00', '00'],
+        ['40', '00', '00', '00'],
+        ['80', '00', '00', '00'],
+        ['1b', '00', '00', '00'],
+        ['36', '00', '00', '00']]
+
 # Matriz empleada para la multiplicación en MixColumn
 MIXCOLUM_MATRIX = [['02', '03', '01', '01'],
                    ['01', '02', '03', '01'],
@@ -43,6 +55,20 @@ MIXCOLUM_MATRIX = [['02', '03', '01', '01'],
 # Limpia la pantalla de la terminal
 def cleanTerminal():
   os.system('cls' if os.name == 'nt' else 'clear')
+
+# Formatea una matriz de hexadecimales, eliminando los '0x'
+def delete0x(matrix):
+  result = matrix.copy()
+  for row in result:
+    it = 0
+    while (it < len(row)):
+      if ('0x' in row[it]):
+        row[it] = row[it].replace('0x', '')
+        if (len(row[it]) < 2):
+          row[it] = '0' + row[it]
+      it += 1
+  return result
+
 
 # Rota elementos de un array
 # d: Indica los 'd' primeros elementos a rotar
@@ -56,7 +82,7 @@ def rotateArray(array, d):
     i += 1
   i = 0
   while (dCopy < len(array)):
-    result[i] = array[dCopy]
+    result[i] = result[dCopy]
     i += 1
     dCopy += 1
   result = result[: i] + temp
@@ -88,8 +114,79 @@ def shiftRow(matrix):
   return result
 
 # MixColumn
-def MixColumn(matrix, constant_matrix = MIXCOLUM_MATRIX):
+def mixColumns(matrix):
+  result = matrix.copy()
+  for i in range(4):
+    a = []
+    b = []
+    for c in range(4):
+      a.append(int(result[c][i], 16))
+      h = int(result[c][i], 16) & 0x80
+      b.append((int(result[c][i], 16) << 1) % 256)
+      if (h == 0x80):
+        b[c] = b[c] ^ 0x1b 
+    result[0][i] = hex(b[0] ^ a[3] ^ a[2] ^ b[1] ^ a[1]) 
+    result[1][i] = hex(b[1] ^ a[0] ^ a[3] ^ b[2] ^ a[2]) 
+    result[2][i] = hex(b[2] ^ a[1] ^ a[0] ^ b[3] ^ a[3]) 
+    result[3][i] = hex(b[3] ^ a[2] ^ a[1] ^ b[0] ^ a[0]) 
+  result = delete0x(result)
+  return result
+
+# AddRoundKey
+def addRoundKey(matrix, key):
+  assert (len(matrix) == len(key))
+  result = []
+  i = 0
+  j = 0
+  while (i < len(matrix)):
+    assert (len(matrix[i]) == len(key[i]))
+    resultRow = []
+    while (j < len(matrix[i])):
+      resultRow.append(hex(int(matrix[i][j], 16) ^ int(key[i][j], 16)))
+      j += 1
+    result.append(resultRow)
+    j = 0
+    i += 1
+  result = delete0x(result)
+  return result
+
+# XOR entre 2 vectores
+def vectorXOR(vec1, vec2):
+  assert(len(vec1) == len(vec2))
+  result = []
+  it = 0
+  while (it < len(vec1)):
+    result.append(hex(int(vec1[it], 16) ^ int(vec2[it], 16)))
+    it += 1
+  result = delete0x([result])[0]
+  return result
   
+# Devuelve una columna de una matriz en específico, determinada por
+# su índice.
+def getColumn(matrix, index):
+  result = []
+  it = 0
+  while (it < len(matrix)):
+    result.append(matrix[it][index])
+    it += 1
+  return result
+
+# Genera una expansión de claves
+# - key = clave a expandir
+# - RCON_index = índice de la matriz RCON a utilizar
+def keyExpansion(key, RCON_index):
+  result = []
+  # RotWord
+  colResult = getColumn(key, len(key) - 1)
+  colResult = rotateArray(colResult, 1)
+  # SubBytes
+  colResult = subBytes([colResult])[0]
+  # XOR i - 3
+  colResult = vectorXOR(colResult, getColumn(key, len(key) - 4))
+  # XOR RCON
+  colResult = vectorXOR(colResult, RCON[RCON_index])
+  print(colResult)
+
 
 # Imprime por pantalla la matriz
 def show(matrix):
@@ -109,15 +206,25 @@ matriz_ejemplo = [['33', '0a', '74', '0a'],
                   ['0d', '05', '5d', '47'],
                   ['12', '45', '4c', '43']]
 
-show(subBytes(matriz_ejemplo))
-print()
-show(shiftRow(subBytes(matriz_ejemplo)))
+matriz_ejemplo2 = [['cb', 'e1', 'cb', '98'],
+                  ['0d', 'd8', 'e8', 'eb'],
+                  ['75', 'b7', 'ae', 'c6'],
+                  ['26', '4b', '9d', '9c']]
+
+key_ejemplo = [['9B', 'FE', 'DE', 'BC'],
+               ['FE', 'DE', 'EF', '86'],
+               ['EE', '8A', 'B8', 'CC'],
+               ['DC', 'B9', '81', 'F2']]
+
+key_ejemplo2 = [['63', '65', '20', '62'],
+                ['6c', '20', '31', '69'],
+                ['61', '64', '32', '74'],
+                ['76', '65', '38', '73']]
 
 
+# show(addRoundKey(mixColumns(shiftRow(subBytes(matriz_ejemplo))), key_ejemplo))
 
-
-
-
+keyExpansion(key_ejemplo2, 0)
 
 # Constantes
 #SNOW3G_byte = '10101001'

@@ -1,9 +1,9 @@
-# Práctica 5: Multiplicación en SNOW 3G y AES
+# Práctica 6: Entrega AES
 
 ## Información de la práctica
-* Prática implementada: [PRÁCTICA: MULTIPLICACIÓN EN SNOW 3G Y AES](https://campusingenieriaytecnologia2122.ull.es/pluginfile.php/3585/mod_assign/intro/PracticaProducto-SNOW3G-AES.pdf)
+* Prática implementada: [PRÁCTICA: RIJNDAEL]("https://campusingenieriaytecnologia2122.ull.es/pluginfile.php/3593/mod_assign/introattachment/0/PracticaRijndael.pdf?forcedownload=1)
 * Lenguaje utilizado: Python
-* Fecha de entrega: 31/03/2022
+* Fecha de entrega: 07/04/2022
 
 ## Acerca de
 - Universidad de La Laguna (ULL)

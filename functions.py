@@ -185,8 +185,17 @@ def keyExpansion(key, RCON_index):
   colResult = vectorXOR(colResult, getColumn(key, len(key) - 4))
   # XOR RCON
   colResult = vectorXOR(colResult, RCON[RCON_index])
-  print(colResult)
-
+  # Guardamos el resultado
+  for element in colResult:
+    result.append([element])
+  # XOR restantes
+  for i in range(len(colResult) - 1):
+    colResult =  vectorXOR(colResult, getColumn(key, i + 1))
+    it = 0
+    for element in colResult:
+      result[it].append(element)
+      it += 1
+  return result
 
 # Imprime por pantalla la matriz
 def show(matrix):
@@ -224,7 +233,7 @@ key_ejemplo2 = [['63', '65', '20', '62'],
 
 # show(addRoundKey(mixColumns(shiftRow(subBytes(matriz_ejemplo))), key_ejemplo))
 
-keyExpansion(key_ejemplo2, 0)
+show(keyExpansion(keyExpansion(key_ejemplo2, 0), 1))
 
 # Constantes
 #SNOW3G_byte = '10101001'

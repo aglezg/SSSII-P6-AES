@@ -1,7 +1,7 @@
 # Práctica 6: Entrega AES
 
 ## Información de la práctica
-* Prática implementada: [PRÁCTICA: RIJNDAEL]("https://campusingenieriaytecnologia2122.ull.es/pluginfile.php/3593/mod_assign/introattachment/0/PracticaRijndael.pdf?forcedownload=1)
+* Prática implementada: [PRÁCTICA: RIJNDAEL](https://campusingenieriaytecnologia2122.ull.es/pluginfile.php/3593/mod_assign/introattachment/0/PracticaRijndael.pdf?forcedownload=1)
 * Lenguaje utilizado: Python
 * Fecha de entrega: 07/04/2022
 
